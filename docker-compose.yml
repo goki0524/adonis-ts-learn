@@ -1,0 +1,48 @@
+version: '3'
+services:
+  app:
+    build:
+      context: ./docker/node
+      dockerfile: dev.Dockerfile
+    image: node:12.13.1
+    container_name: adonis-ts-learn
+    ports:
+      - 3333:3333
+    volumes:
+      - .:/src:cached
+      - ./node_modules:/src/node_modules:delegated
+    tty: true
+    stdin_open: true
+
+  mysql:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: adonis-ts-learn
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: 123456
+      TZ: "Asia/Tokyo"
+
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql:/var/lib/mysql:delegated
+      # - ./database/sql/initdb:/docker-entrypoint-initdb.d
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      PMA_ARBITRARY: 1
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: root
+    depends_on:
+      - mysql
+
+volumes:
+  mysql:
