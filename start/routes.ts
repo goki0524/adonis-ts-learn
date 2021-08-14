@@ -19,7 +19,19 @@
 */
 
 import Route from '@ioc:Adonis/Core/Route'
+import HealthCheck from '@ioc:Adonis/Core/HealthCheck'
 
 Route.get('/', async () => {
   return { hello: 'world' }
 })
+
+Route.get('health', async ({ response }) => {
+  const report = await HealthCheck.getReport()
+  return report.healthy ? response.ok(report) : response.badRequest(report)
+})
+
+// Route.resource('users', 'UsersController')
+
+Route.get('/users', 'UsersController.index')
+Route.post('/users', 'UsersController.store')
+Route.get('/users/:id', 'UsersController.show')
